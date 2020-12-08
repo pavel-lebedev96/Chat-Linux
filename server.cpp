@@ -5,14 +5,14 @@
 #include <wait.h>
 #include <map>
 #include "ipc_tools.h"
-/*сигнал для нового события*/
+/*СЃРёРіРЅР°Р» РґР»СЏ РЅРѕРІРѕРіРѕ СЃРѕР±С‹С‚РёСЏ*/
 #define EVENT SIGUSR1 
-/*сигнал для старта дочернего процесса*/
+/*СЃРёРіРЅР°Р» РґР»СЏ СЃС‚Р°СЂС‚Р° РґРѕС‡РµСЂРЅРµРіРѕ РїСЂРѕС†РµСЃСЃР°*/
 #define START SIGUSR2
 #define SIZE sizeof(struct sockaddr_in)
-/*номер порта*/
+/*РЅРѕРјРµСЂ РїРѕСЂС‚Р°*/
 #define PORT_NUM 7000
-/*информации о клиентах*/
+/*РёРЅС„РѕСЂРјР°С†РёРё Рѕ РєР»РёРµРЅС‚Р°С…*/
 struct TClient
 {
 	char name[20];
@@ -20,11 +20,11 @@ struct TClient
 };
 int cl_shmid, shmid, cl_semid, semid, client_sockfd;
 pid_t sender_pid;
-/*контейнер для хранения информации о клиентах*/
+/*РєРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РєР»РёРµРЅС‚Р°С…*/
 std::map<pid_t, TClient> clients;
-/*обработчик сигнал о старте*/
+/*РѕР±СЂР°Р±РѕС‚С‡РёРє СЃРёРіРЅР°Р» Рѕ СЃС‚Р°СЂС‚Рµ*/
 void start_sighandler(int){}
-/*обработка ошибки при send*/
+/*РѕР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РєРё РїСЂРё send*/
 void sigpipe_handler(int)
 {
 	TData data;
@@ -35,7 +35,7 @@ void sigpipe_handler(int)
 	kill(getppid(), EVENT);
 	exit(1);
 }
-/*обработчик событий для дочернего процесса*/
+/*РѕР±СЂР°Р±РѕС‚С‡РёРє СЃРѕР±С‹С‚РёР№ РґР»СЏ РґРѕС‡РµСЂРЅРµРіРѕ РїСЂРѕС†РµСЃСЃР°*/
 void event_child_sighandler(int)
 {
 	TData data;
@@ -46,7 +46,7 @@ void event_child_sighandler(int)
 	lens = strlen(data.msg);
 	send(client_sockfd, data.msg, lens + 1, 0);
 }
-/*обработчик событий для родительского процесса*/
+/*РѕР±СЂР°Р±РѕС‚С‡РёРє СЃРѕР±С‹С‚РёР№ РґР»СЏ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ РїСЂРѕС†РµСЃСЃР°*/
 void event_sighandler(int)
 {
 	TData data;
@@ -79,7 +79,7 @@ void event_sighandler(int)
 	}
 	v(semid);
 }
-/*дочерний процессс*/
+/*РґРѕС‡РµСЂРЅРёР№ РїСЂРѕС†РµСЃСЃСЃ*/
 void child_proccess()
 {
 	TData data;
@@ -103,18 +103,18 @@ int main()
 	semid = init_sem(get_ipc_key(3));
 	cl_semid = init_sem(get_ipc_key(4));
 	signal(EVENT, event_sighandler);
-	/* создание сокета */
+	/* СЃРѕР·РґР°РЅРёРµ СЃРѕРєРµС‚Р° */
 	if ((server_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		error("Socket error");
-	/* связывание сокета с адресом*/
+	/* СЃРІСЏР·С‹РІР°РЅРёРµ СЃРѕРєРµС‚Р° СЃ Р°РґСЂРµСЃРѕРј*/
 	if (bind(server_sockfd, (struct sockaddr *)&server, SIZE) == -1)
 		error("Bind error");
-	/* включение приема соединений */
+	/* РІРєР»СЋС‡РµРЅРёРµ РїСЂРёРµРјР° СЃРѕРµРґРёРЅРµРЅРёР№ */
 	if (listen(server_sockfd, 5) == -1 )
 		error("Listen error");
 	for (;;)
 	{
-		/* прием запроса на соединение */
+		/* РїСЂРёРµРј Р·Р°РїСЂРѕСЃР° РЅР° СЃРѕРµРґРёРЅРµРЅРёРµ */
 		if ((client_sockfd = accept(server_sockfd, NULL, NULL)) == -1)
 			error("Accept error");
 		client_inf.sockfd = client_sockfd;
@@ -129,7 +129,7 @@ int main()
 			signal(EVENT, event_child_sighandler);
 			signal(SIGPIPE, sigpipe_handler);
 			signal(START, start_sighandler);
-			/*ожидание сигнала о начале*/
+			/*РѕР¶РёРґР°РЅРёРµ СЃРёРіРЅР°Р»Р° Рѕ РЅР°С‡Р°Р»Рµ*/
 			sigpause(START);
 			child_proccess();
 		}

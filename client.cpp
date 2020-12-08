@@ -28,15 +28,15 @@ main()
 	int port;
 	pid_t pid;;
 	struct sockaddr_in server = { AF_INET, PORT};
-	/* Преобразовывает и сохраняет IP адрес сервера */
+	/* РџСЂРµРѕР±СЂР°Р·РѕРІС‹РІР°РµС‚ Рё СЃРѕС…СЂР°РЅСЏРµС‚ IP Р°РґСЂРµСЃ СЃРµСЂРІРµСЂР° */
 	server.sin_addr.s_addr = inet_addr("127.0.0.1");
-	/* Создает сокет */
+	/* РЎРѕР·РґР°РµС‚ СЃРѕРєРµС‚ */
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		error("socket error");
-	/* Соединяет сокет с сервером */
+	/* РЎРѕРµРґРёРЅСЏРµС‚ СЃРѕРєРµС‚ СЃ СЃРµСЂРІРµСЂРѕРј */
 	if (connect(sockfd, (struct sockaddr *)&server, SIZE) == -1)
 		error("connect error");
-	/*имя пользователя*/
+	/*РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ*/
 	if (recv(sockfd, msg, MAXLEN, 0) == 0)
 		error("recv error");
 	printf("%s\n", msg);

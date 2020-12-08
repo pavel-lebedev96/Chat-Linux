@@ -8,41 +8,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-/*права доступа*/
+/*РїСЂР°РІР° РґРѕСЃС‚СѓРїР°*/
 #define PERM 0600
-/*максимальная длина сообщения*/
+/*РјР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° СЃРѕРѕР±С‰РµРЅРёСЏ*/
 #define MAXLEN 50
 #define ERR ((struct TData *) -1)
 using namespace std;
-/*структура для semctl*/
+/*СЃС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ semctl*/
 union semun 
 {
-	int val;/* значение для SETVAL */
-	struct semid_ds *buf;/* буфер для IPC_STAT, IPC_SET */
-	unsigned short *array; /* массив для GETALL, SETALL */
+	int val;/* Р·РЅР°С‡РµРЅРёРµ РґР»СЏ SETVAL */
+	struct semid_ds *buf;/* Р±СѓС„РµСЂ РґР»СЏ IPC_STAT, IPC_SET */
+	unsigned short *array; /* РјР°СЃСЃРёРІ РґР»СЏ GETALL, SETALL */
 };
 struct TData
 {
 	char msg[MAXLEN + 1];
 	pid_t pid;
 };
-/*обработка ошибок*/
+/*РѕР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РѕРє*/
 void error(char *s)
 {
 	perror(s);
 	getchar();
 	exit(1);
 }
-/*инициализация семафора*/
+/*РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРµРјР°С„РѕСЂР°*/
 int init_sem(key_t semkey)
 {
 	int semid;
 	union semun arg;
-	/*получение идентификатора семафора*/
+	/*РїРѕР»СѓС‡РµРЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° СЃРµРјР°С„РѕСЂР°*/
 	if ((semid = semget(semkey, 1, PERM | IPC_CREAT)) == -1)
 		error("semget error!");
 	arg.val = 1;
-	/*присвоить семафору начальное значение*/
+	/*РїСЂРёСЃРІРѕРёС‚СЊ СЃРµРјР°С„РѕСЂСѓ РЅР°С‡Р°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ*/
 	if (semctl(semid, 0, SETVAL, arg) == -1)
 		error("semctl error!");
 	return semid;
@@ -54,7 +54,7 @@ void p(int semid)
 	p_buf.sem_num = 0;
 	p_buf.sem_op = -1;
 	p_buf.sem_flg = SEM_UNDO;
-	/*уменьшить значение на 1*/
+	/*СѓРјРµРЅСЊС€РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ РЅР° 1*/
 	if (semop(semid, &p_buf, 1) == -1)
 		error("p(semid) error");
 }
@@ -65,11 +65,11 @@ void v(int semid)
 	v_buf.sem_num = 0;
 	v_buf.sem_op = 1;
 	v_buf.sem_flg = SEM_UNDO;
-	/*увеличить значение на 1*/
+	/*СѓРІРµР»РёС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ РЅР° 1*/
 	if (semop(semid, &v_buf, 1) == 1)
 		error("v(semid) error!");
 }
-/*инициализация разделяемой памяти*/
+/*РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЂР°Р·РґРµР»СЏРµРјРѕР№ РїР°РјСЏС‚Рё*/
 int init_shm(key_t shmkey)
 {
 	int shmid;
@@ -77,7 +77,7 @@ int init_shm(key_t shmkey)
 		error("shmget error");
 	return  shmid;
 }
-/*запись данных в разделяемую память*/
+/*Р·Р°РїРёСЃСЊ РґР°РЅРЅС‹С… РІ СЂР°Р·РґРµР»СЏРµРјСѓСЋ РїР°РјСЏС‚СЊ*/
 void write_shr_data(int shmid, TData &data)
 {
 	TData *p = (TData *)shmat(shmid, NULL, 0);
@@ -85,7 +85,7 @@ void write_shr_data(int shmid, TData &data)
 	p->pid = data.pid;
 	shmdt(p);
 }
-/*чтение данных из разделяемой памяти*/
+/*С‡С‚РµРЅРёРµ РґР°РЅРЅС‹С… РёР· СЂР°Р·РґРµР»СЏРµРјРѕР№ РїР°РјСЏС‚Рё*/
 void read_shr_data(int shmid, TData &data)
 {
 	TData *p;
@@ -95,7 +95,7 @@ void read_shr_data(int shmid, TData &data)
 	data.pid = p->pid;
 	shmdt(p);
 }
-/*получение уникального ipc ключа*/
+/*РїРѕР»СѓС‡РµРЅРёРµ СѓРЅРёРєР°Р»СЊРЅРѕРіРѕ ipc РєР»СЋС‡Р°*/
 key_t get_ipc_key(int id)
 {
 	close(creat("ipc_key", PERM));
